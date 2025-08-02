@@ -85,7 +85,7 @@ namespace WoWSBoxMount
             lf.Initialize(buildInstance.cdn, buildInstance.Settings);
             lf.GetFilename(1); // trigger name load
 
-            var limit = 2000;
+            var limit = 5;
             var count = 0;
 
             var regex = "_\\d{1,3}(_lod\\d+)?\\.wmo";
@@ -102,34 +102,34 @@ namespace WoWSBoxMount
                     if (filename.StartsWith("item"))
                         continue;
 
-                    context.Add(ResourceType.Model, file.Key.ToString(), new WowModel
+                    context.Add(ResourceType.Model, file.Value, new WowModel
                     {
                         FileDataID = file.Key
                     });
 
                     count++;
                 }
-                //else if (filename.EndsWith(".wmo"))
-                //{
-                //    if (System.Text.RegularExpressions.Regex.IsMatch(filename, regex))
-                //    {
-                //        Log.Info(filename + " is a group WMO, skipping.");
-                //        continue;
-                //    }
-
-                //    context.Add(ResourceType.Model, file.Key.ToString(), new WowWMO
-                //    {
-                //        FileDataID = file.Key
-                //    });
-
-                //    count++;
-                //}
-
-                if (count > limit)
+                else if (filename.EndsWith(".wmo"))
                 {
-                    base.Log.Info("Stopping model loading after " + limit + " items to prevent flooding.");
-                    break;
+                    if (System.Text.RegularExpressions.Regex.IsMatch(filename, regex))
+                    {
+                        //Log.Info(filename + " is a group WMO, skipping.");
+                        continue;
+                    }
+
+                    context.Add(ResourceType.Model, file.Value, new WowWMO
+                    {
+                        FileDataID = file.Key
+                    });
+
+                    count++;
                 }
+
+                //if (count > limit)
+                //{
+                //    base.Log.Info("Stopping model loading after " + limit + " items to prevent flooding.");
+                //    break;
+                //}
             }
 
             base.Log.Info("Build loaded: " + buildInstance.BuildConfig!.Values["build-name"][0]);
