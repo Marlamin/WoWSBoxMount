@@ -1,6 +1,4 @@
-﻿using Sandbox;
-
-public struct WMOVertex
+﻿public struct WMOVertex
 {
 	[VertexLayout.Position]
 	public Vector3 position;
