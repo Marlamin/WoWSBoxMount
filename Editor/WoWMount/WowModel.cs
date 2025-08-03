@@ -30,10 +30,16 @@ namespace WoWSBoxMount
 				vectorList.Add( position );
 				var normal = new Vector3( vertice.normal.x, vertice.normal.y, vertice.normal.z );
 				var texCoord = new Vector2( vertice.textureCoordX, vertice.textureCoordY );
+
+				var blendWeights = new Vector4(vertice.boneWeight_0, vertice.boneWeight_1, vertice.boneWeight_2, vertice.boneWeight_3);
+				var blendIndices = new Vector4(vertice.boneIndices_0, vertice.boneIndices_1, vertice.boneIndices_2, vertice.boneIndices_3);
+
 				verticeList.Add( new M2Vertex(
 					position * 30f,
 					normal,
-					texCoord
+					texCoord,
+					blendIndices,
+					blendWeights
 				) );
 			}
 
