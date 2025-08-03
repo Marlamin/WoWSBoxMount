@@ -8,6 +8,7 @@ namespace WoWSBoxMount
     internal class WowModel : ResourceLoader<WowMount>
     {
         public uint FileDataID { get; set; }
+        public string BaseName { get; set; }
 
         protected override object Load()
         {
@@ -92,7 +93,7 @@ namespace WoWSBoxMount
                 meshList.Add(mesh);
             }
 
-            model = Model.Builder.WithName("WoWTest").AddMeshes([.. meshList]).Create();
+            model = Model.Builder.WithName(BaseName).AddMeshes([.. meshList]).Create();
             Log.Info("WoW model loaded successfully.");
             return model;
         }

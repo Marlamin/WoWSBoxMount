@@ -1,6 +1,5 @@
 ﻿using Sandbox.Mounting;
 using TACTSharp;
-using WoWFormatLib.Structs.WMO;
 
 namespace WoWSBoxMount
 {
@@ -104,7 +103,8 @@ namespace WoWSBoxMount
 
                     context.Add(ResourceType.Model, file.Value, new WowModel
                     {
-                        FileDataID = file.Key
+                        FileDataID = file.Key,
+                        BaseName = Path.GetFileNameWithoutExtension(file.Value)
                     });
 
                     count++;
