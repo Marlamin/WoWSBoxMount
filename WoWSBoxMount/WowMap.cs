@@ -48,7 +48,7 @@ namespace WoWSBoxMount
 
                 adtReader.LoadADT(wdtReader.wdtfile.mphd.flags, tile.Value.rootADT, tile.Value.obj0ADT, tile.Value.tex0ADT);
                 var adt = adtReader.adtfile;
-              
+
                 for (uint c = 0; c < 256; c++)
                 {
                     var verticelist = new List<SimpleVertex>();

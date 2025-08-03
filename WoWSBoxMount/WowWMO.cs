@@ -1,22 +1,18 @@
-﻿using BLPSharp;
-using Sandbox;
+﻿using Sandbox;
 using Sandbox.Mounting;
-using System.Numerics;
+using System;
 using WoWFormatLib.FileReaders;
-using WoWFormatLib.Structs.SKIN;
 
 namespace WoWSBoxMount
 {
     internal class WowWMO : ResourceLoader<WowMount>
     {
         public uint FileDataID { get; set; }
-        public string FileName { get; set; }
+        public string BaseName { get; set; }
 
         protected override object Load()
         {
-            object model;
-
-            Log.Info("Loading WoW WMO " + FileName + "...");
+            Log.Info("Loading WoW WMO " + BaseName + "...");
             var wmoReader = new WMOReader(base.Host);
             WoWFormatLib.Structs.WMO.WMO wmo;
 
@@ -100,34 +96,37 @@ namespace WoWSBoxMount
 
                 var meshName = groupName;
 
-                var wmovertices = new List<SimpleVertex>(wmo.group[g].mogp.vertices.Length);
+                var wmovertices = new List<WMOVertex>(wmo.group[g].mogp.vertices.Length);
                 var vectorList = new List<Vector3>();
                 for (var i = 0; i < wmo.group[g].mogp.vertices.Length; i++)
                 {
-                    var wmovertex = new SimpleVertex();
-                    wmovertex.position = new Vector3(wmo.group[g].mogp.vertices[i].vector.x, wmo.group[g].mogp.vertices[i].vector.y, wmo.group[g].mogp.vertices[i].vector.z) * 40f;
-                    vectorList.Add(wmovertex.position);
-                    wmovertex.normal = new Vector3(wmo.group[g].mogp.normals[i].normal.x, wmo.group[g].mogp.normals[i].normal.y, wmo.group[g].mogp.normals[i].normal.z);
+                    var wmovertex = new WMOVertex
+                    {
+                        position = new Vector3(wmo.group[g].mogp.vertices[i].vector.x, wmo.group[g].mogp.vertices[i].vector.y, wmo.group[g].mogp.vertices[i].vector.z) * 40f,
+                        normal = new Vector3(wmo.group[g].mogp.normals[i].normal.x, wmo.group[g].mogp.normals[i].normal.y, wmo.group[g].mogp.normals[i].normal.z)
+                    };
+
                     if (wmo.group[g].mogp.textureCoords[0] == null)
-                        wmovertex.texcoord = new Vector2(0.0f, 0.0f);
+                        wmovertex.texcoord0 = new Vector2(0.0f, 0.0f);
                     else
-                        wmovertex.texcoord = new Vector2(wmo.group[g].mogp.textureCoords[0][i].X, wmo.group[g].mogp.textureCoords[0][i].Y);
+                        wmovertex.texcoord0 = new Vector2(wmo.group[g].mogp.textureCoords[0][i].X, wmo.group[g].mogp.textureCoords[0][i].Y);
 
-                    //if (wmo.group[g].mogp.textureCoords[1] == null)
-                    //    wmovertices[i].TexCoord2 = new Vector2(0.0f, 0.0f);
-                    //else
-                    //    wmovertices[i].TexCoord2 = new Vector2(wmo.group[g].mogp.textureCoords[1][i].X, wmo.group[g].mogp.textureCoords[1][i].Y);
+                    if (wmo.group[g].mogp.textureCoords[1] == null)
+                        wmovertex.texcoord1 = new Vector2(0.0f, 0.0f);
+                    else
+                        wmovertex.texcoord1 = new Vector2(wmo.group[g].mogp.textureCoords[1][i].X, wmo.group[g].mogp.textureCoords[1][i].Y);
 
-                    //if (wmo.group[g].mogp.textureCoords[2] == null)
-                    //    wmovertices[i].TexCoord3 = new Vector2(0.0f, 0.0f);
-                    //else
-                    //    wmovertices[i].TexCoord3 = new Vector2(wmo.group[g].mogp.textureCoords[2][i].X, wmo.group[g].mogp.textureCoords[2][i].Y);
+                    if (wmo.group[g].mogp.textureCoords[2] == null)
+                        wmovertex.texcoord2 = new Vector2(0.0f, 0.0f);
+                    else
+                        wmovertex.texcoord2 = new Vector2(wmo.group[g].mogp.textureCoords[2][i].X, wmo.group[g].mogp.textureCoords[2][i].Y);
 
-                    //if (wmo.group[g].mogp.textureCoords[3] == null)
-                    //    wmovertices[i].TexCoord4 = new Vector2(0.0f, 0.0f);
-                    //else
-                    //    wmovertices[i].TexCoord4 = new Vector2(wmo.group[g].mogp.textureCoords[3][i].X, wmo.group[g].mogp.textureCoords[3][i].Y);
+                    if (wmo.group[g].mogp.textureCoords[3] == null)
+                        wmovertex.texcoord3 = new Vector2(0.0f, 0.0f);
+                    else
+                        wmovertex.texcoord3 = new Vector2(wmo.group[g].mogp.textureCoords[3][i].X, wmo.group[g].mogp.textureCoords[3][i].Y);
 
+                    vectorList.Add(wmovertex.position);
                     wmovertices.Add(wmovertex);
                 }
 
@@ -143,10 +142,11 @@ namespace WoWSBoxMount
                     Sandbox.Texture texture = Sandbox.Texture.White;
                     var mesh = new Mesh(material);
 
-                    mesh.CreateVertexBuffer(wmovertices.Count, SimpleVertex.Layout, wmovertices);
+
+                    mesh.CreateVertexBuffer(wmovertices.Count, WMOVertex.Layout, wmovertices);
                     mesh.CreateIndexBuffer(indiceArr.Length, indiceArr);
                     mesh.SetIndexRange((int)group.mogp.renderBatches[i].firstFace * 3, (int)group.mogp.renderBatches[i].numFaces * 3);
-                    mesh.Bounds = BBox.FromPoints(wmovertices.Select((SimpleVertex x) => x.position), 0f);
+                    mesh.Bounds = BBox.FromPoints(wmovertices.Select((WMOVertex x) => x.position), 0f);
 
                     uint matID = 0;
 
@@ -224,7 +224,7 @@ namespace WoWSBoxMount
 
             //model = ;
             //Log.Info("WoW model loaded successfully.");
-            return Model.Builder.WithName("WoWWMO").AddMeshes([.. meshList]).Create();
+            return Model.Builder.WithName(BaseName).AddMeshes([.. meshList]).Create();
         }
     }
 }

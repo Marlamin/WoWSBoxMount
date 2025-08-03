@@ -23,19 +23,17 @@ namespace WoWSBoxMount
             }
 
             var m2 = m2Reader.model;
-            var verticeList = new List<SimpleVertex>();
+            var verticeList = new List<M2Vertex>();
             var vectorList = new List<Vector3>();
             foreach (var vertice in m2.vertices)
             {
-
                 var position = new Vector3(vertice.position.x, vertice.position.y, vertice.position.z);
                 vectorList.Add(position);
                 var normal = new Vector3(vertice.normal.x, vertice.normal.y, vertice.normal.z);
                 var texCoord = new Vector2(vertice.textureCoordX, vertice.textureCoordY);
-                verticeList.Add(new SimpleVertex(
+                verticeList.Add(new M2Vertex(
                     position * 30f,
                     normal,
-                    Vector3.Zero,
                     texCoord
                 ));
             }
@@ -84,12 +82,12 @@ namespace WoWSBoxMount
 
                 var mesh = new Mesh(material);
 
-                mesh.CreateVertexBuffer(verticeList.Count, SimpleVertex.Layout, verticeList);
+                mesh.CreateVertexBuffer(verticeList.Count, M2Vertex.Layout, verticeList);
 
                 var indiceArr = indiceList.ToArray();
                 mesh.CreateIndexBuffer(indiceArr.Length, indiceArr);
                 mesh.SetIndexRange((int)submesh.startTriangle, (int)submesh.nTriangles);
-                mesh.Bounds = BBox.FromPoints(verticeList.Select((SimpleVertex x) => x.position), 0f);
+                mesh.Bounds = BBox.FromPoints(verticeList.Select((M2Vertex x) => x.position), 0f);
                 meshList.Add(mesh);
             }
 
