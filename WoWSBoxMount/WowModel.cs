@@ -87,7 +87,7 @@ namespace WoWSBoxMount
 
                 var indiceArr = indiceList.ToArray();
                 mesh.CreateIndexBuffer(indiceArr.Length, indiceArr);
-                mesh.SetIndexRange((int)submesh.startTriangle * 3, (int)submesh.nTriangles * 3);
+                mesh.SetIndexRange((int)submesh.startTriangle, (int)submesh.nTriangles);
                 mesh.Bounds = BBox.FromPoints(verticeList.Select((SimpleVertex x) => x.position), 0f);
                 meshList.Add(mesh);
             }
