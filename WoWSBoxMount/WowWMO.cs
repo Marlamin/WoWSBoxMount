@@ -1,6 +1,5 @@
 ﻿using Sandbox;
 using Sandbox.Mounting;
-using System;
 using WoWFormatLib.FileReaders;
 
 namespace WoWSBoxMount
@@ -136,12 +135,11 @@ namespace WoWSBoxMount
 
                 var indiceArr = indiceList.ToArray();
 
-                for (var i = 0; i < group.mogp.renderBatches.Count(); i++)
+                for (var i = 0; i < group.mogp.renderBatches.Length; i++)
                 {
                     var material = Material.Create("wmo", "simple_color");
                     Sandbox.Texture texture = Sandbox.Texture.White;
                     var mesh = new Mesh(material);
-
 
                     mesh.CreateVertexBuffer(wmovertices.Count, WMOVertex.Layout, wmovertices);
                     mesh.CreateIndexBuffer(indiceArr.Length, indiceArr);

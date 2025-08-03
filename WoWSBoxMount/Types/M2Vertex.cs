@@ -1,4 +1,6 @@
-﻿public struct M2Vertex
+﻿using Sandbox;
+
+public struct M2Vertex
 {
 	[VertexLayout.Position]
 	public Vector3 position;
