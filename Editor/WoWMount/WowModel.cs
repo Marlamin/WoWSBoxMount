@@ -11,8 +11,6 @@ namespace WoWSBoxMount
 
 		protected override object Load()
 		{
-			object model;
-
 			Log.Info( "Loading WoW M2 " + FileDataID + "..." );
 
 			var m2Reader = new M2Reader( base.Host );
@@ -30,9 +28,8 @@ namespace WoWSBoxMount
 				vectorList.Add( position );
 				var normal = new Vector3( vertice.normal.x, vertice.normal.y, vertice.normal.z );
 				var texCoord = new Vector2( vertice.textureCoordX, vertice.textureCoordY );
-
-				var blendWeights = new Vector4(vertice.boneWeight_0, vertice.boneWeight_1, vertice.boneWeight_2, vertice.boneWeight_3);
-				var blendIndices = new Vector4(vertice.boneIndices_0, vertice.boneIndices_1, vertice.boneIndices_2, vertice.boneIndices_3);
+				var blendIndices = new Color32( vertice.boneIndices_0, vertice.boneIndices_1, vertice.boneIndices_2, vertice.boneIndices_3 );
+				var blendWeights = new Color32( vertice.boneWeight_0, vertice.boneWeight_1, vertice.boneWeight_2, vertice.boneWeight_3 );
 
 				verticeList.Add( new M2Vertex(
 					position * 30f,
@@ -96,7 +93,36 @@ namespace WoWSBoxMount
 				meshList.Add( mesh );
 			}
 
-			model = Model.Builder.WithName( BaseName ).AddMeshes( [.. meshList] ).Create();
+			var boneList = new List<Sandbox.ModelBuilder.Bone>();
+			// This makes models disappear, figure out how to properly handle bones.
+			/*for(var boneIndex = 0; boneIndex < m2.bones.Length; boneIndex++)
+			{
+				var m2Bone = m2.bones[boneIndex];
+				var pivot = m2Bone.pivot;
+				var rotation = m2Bone.rotation;
+
+				if(m2Bone.parentBone > -1)
+				{
+					var parentBone = m2.bones[m2Bone.parentBone];
+					var parentPivot = parentBone.pivot;
+					var sandboxBone = new Sandbox.ModelBuilder.Bone(
+						boneIndex.ToString(),
+						m2Bone.parentBone.ToString(),
+						Vector3.Zero,
+						Quaternion.Zero
+					);
+					boneList.Add(sandboxBone);
+				}
+				else
+				{
+					boneList.Add(new Sandbox.ModelBuilder.Bone(boneIndex.ToString(), "", Vector3.Zero, Quaternion.Zero));
+				}
+			}*/
+
+			var modelBuilder = Model.Builder.WithName( BaseName );
+			modelBuilder.AddMeshes( [.. meshList] );
+			modelBuilder.AddBones( [.. boneList] );
+			var model = modelBuilder.Create();
 			Log.Info( "WoW model loaded successfully." );
 			return model;
 		}
