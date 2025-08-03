@@ -1,4 +1,5 @@
-﻿using Sandbox.Mounting;
+﻿using BLPSharp;
+using Sandbox.Mounting;
 using System;
 using WoWFormatLib.FileReaders;
 
@@ -20,49 +21,27 @@ namespace WoWSBoxMount
 				wmo = wmoReader.LoadWMO( fs );
 			}
 
-			//wmoBatch.mats = new Renderer.Structs.Material[wmo.materials.Count()];
-			//for (var i = 0; i < wmo.materials.Count(); i++)
-			//{
-			//    wmoBatch.mats[i].texture1 = wmo.materials[i].texture1;
-			//    wmoBatch.mats[i].texture2 = wmo.materials[i].texture2;
-			//    wmoBatch.mats[i].texture3 = wmo.materials[i].texture3;
+			var materials = new Dictionary<int, List<uint>>();
+			for ( var i = 0; i < wmo.materials.Length; i++ )
+			{
+				var textureList = new List<uint>
+				{
+					wmo.materials[i].texture1,
+					wmo.materials[i].texture2,
+					wmo.materials[i].texture3
+				};
 
-			//    if (wmo.materials[i].shader == 23)
-			//    {
-			//        wmoBatch.mats[i].texture4 = wmo.materials[i].color3;
-			//        wmoBatch.mats[i].texture5 = wmo.materials[i].runtimeData0;
-			//        wmoBatch.mats[i].texture6 = wmo.materials[i].runtimeData1;
-			//        wmoBatch.mats[i].texture7 = wmo.materials[i].runtimeData2;
-			//        wmoBatch.mats[i].texture8 = wmo.materials[i].runtimeData3;
-			//    }
+				if ( (int)wmo.materials[i].shader == 23 )
+				{
+					textureList.Add( wmo.materials[i].color3 );
+					textureList.Add( wmo.materials[i].runtimeData0 );
+					textureList.Add( wmo.materials[i].runtimeData1 );
+					textureList.Add( wmo.materials[i].runtimeData2 );
+					textureList.Add( wmo.materials[i].runtimeData3 );
+				}
 
-			//    if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].texture1))
-			//        wmoBatch.mats[i].textureID1 = Cache.GetOrLoadBLP(gl, wmo.materials[i].texture1);
-
-			//    if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].texture2))
-			//        wmoBatch.mats[i].textureID2 = Cache.GetOrLoadBLP(gl, wmo.materials[i].texture2);
-
-			//    if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].texture3))
-			//        wmoBatch.mats[i].textureID3 = Cache.GetOrLoadBLP(gl, wmo.materials[i].texture3);
-
-			//    if (wmo.materials[i].shader == 23)
-			//    {
-			//        if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].color3))
-			//            wmoBatch.mats[i].textureID4 = Cache.GetOrLoadBLP(gl, wmo.materials[i].color3);
-
-			//        if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].runtimeData0))
-			//            wmoBatch.mats[i].textureID5 = Cache.GetOrLoadBLP(gl, wmo.materials[i].runtimeData0);
-
-			//        if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].runtimeData1))
-			//            wmoBatch.mats[i].textureID6 = Cache.GetOrLoadBLP(gl, wmo.materials[i].runtimeData1);
-
-			//        if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].runtimeData2))
-			//            wmoBatch.mats[i].textureID7 = Cache.GetOrLoadBLP(gl, wmo.materials[i].runtimeData2);
-
-			//        if (WoWFormatLib.Utils.CASC.FileExists(wmo.materials[i].runtimeData3))
-			//            wmoBatch.mats[i].textureID8 = Cache.GetOrLoadBLP(gl, wmo.materials[i].runtimeData3);
-			//    }
-			//}
+				materials.Add( i, textureList );
+			}
 
 			var meshList = new List<Mesh>();
 			for ( var g = 0; g < wmo.group.Length; g++ )
@@ -138,35 +117,40 @@ namespace WoWSBoxMount
 				for ( var i = 0; i < group.mogp.renderBatches.Length; i++ )
 				{
 					var material = Material.Create( "wmo", "simple_color" );
-					Sandbox.Texture texture = Sandbox.Texture.White;
-					var mesh = new Mesh( material );
 
-					mesh.CreateVertexBuffer( wmovertices.Count, WMOVertex.Layout, wmovertices );
-					mesh.CreateIndexBuffer( indiceArr.Length, indiceArr );
-					mesh.SetIndexRange( (int)group.mogp.renderBatches[i].firstFace * 3, (int)group.mogp.renderBatches[i].numFaces * 3 );
-					mesh.Bounds = BBox.FromPoints( wmovertices.Select( ( WMOVertex x ) => x.position ), 0f );
-
-					uint matID = 0;
+					int matID = 0;
 
 					if ( group.mogp.renderBatches[i].flags == 2 )
-						matID = (uint)group.mogp.renderBatches[i].possibleBox2_3;
+						matID = group.mogp.renderBatches[i].possibleBox2_3;
 					else
 						matID = group.mogp.renderBatches[i].materialID;
 
 					//wmoBatch.wmoRenderBatch[rb].shader = wmo.materials[matID].shader;
 
-					//wmoBatch.wmoRenderBatch[rb].materialID = new uint[3];
-					//for (var ti = 0; ti < wmoBatch.mats.Count(); ti++)
-					//{
-					//    if (wmo.materials[matID].texture1 == wmoBatch.mats[ti].texture1)
-					//        wmoBatch.wmoRenderBatch[rb].materialID[0] = (uint)wmoBatch.mats[ti].textureID1;
+					var textureFileDataID = materials[matID][0];
 
-					//    if (wmo.materials[matID].texture2 == wmoBatch.mats[ti].texture2)
-					//        wmoBatch.wmoRenderBatch[rb].materialID[1] = (uint)wmoBatch.mats[ti].textureID2;
+					material = Material.Create( textureFileDataID.ToString(), "simple_color" );
+					Sandbox.Texture texture = null;
 
-					//    if (wmo.materials[matID].texture3 == wmoBatch.mats[ti].texture3)
-					//        wmoBatch.wmoRenderBatch[rb].materialID[2] = (uint)wmoBatch.mats[ti].textureID3;
-					//}
+					if ( textureFileDataID == 0 )
+					{
+						texture = Sandbox.Texture.White;
+					}
+					else
+					{
+						var blp = new BLPFile( base.Host.GetFileByID( textureFileDataID ) );
+						var pixels = blp.GetPixels( 0, out var width, out var height );
+						texture = Sandbox.Texture.Create( width, height, ImageFormat.BGRA8888 ).WithData( pixels ).Finish();
+					}
+
+					material.Set( "Color", texture );
+
+					var mesh = new Mesh( material );
+
+					mesh.CreateVertexBuffer( wmovertices.Count, WMOVertex.Layout, wmovertices );
+					mesh.CreateIndexBuffer( indiceArr.Length, indiceArr );
+					mesh.SetIndexRange( (int)group.mogp.renderBatches[i].firstFace, (int)group.mogp.renderBatches[i].numFaces );
+					mesh.Bounds = BBox.FromPoints( wmovertices.Select( ( WMOVertex x ) => x.position ), 0f );
 
 					//wmoBatch.wmoRenderBatch[rb].blendType = wmo.materials[matID].blendMode;
 					//wmoBatch.wmoRenderBatch[rb].groupID = (uint)g;
@@ -222,7 +206,7 @@ namespace WoWSBoxMount
 
 			//model = ;
 			//Log.Info("WoW model loaded successfully.");
-			return Model.Builder.WithName(BaseName).AddMeshes( [.. meshList] ).Create();
+			return Model.Builder.WithName( BaseName ).AddMeshes( [.. meshList] ).Create();
 		}
 	}
 }
