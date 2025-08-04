@@ -138,43 +138,81 @@ PS
 		}
 		else if ( WMOPixelShader == 8 )
 		{
+			// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 9 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 10 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 11 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 12 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 13 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 14 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 15 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 16 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 17 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 18 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 		else if ( WMOPixelShader == 19 )
 		{
+						// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
-		else if ( WMOPixelShader == 19 )
+		else if ( WMOPixelShader == 20 )
 		{
-			m.Albedo = g_tColor3.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			// TODO 
+			m.Albedo = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).rgb;
+			m.Opacity = g_tColor0.Sample(g_sSampler0, i.vTextureCoords.xy ).a;
 		}
 
 		m.Normal = i.vNormalWs;
