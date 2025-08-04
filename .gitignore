@@ -76,3 +76,5 @@ Editor/WoWMount/TACTSharp/
 Editor/WoWMount/BLPSharp/
 Editor/WoWMount/WoWFormatLib/
 Editor/WoWMount/TinyBCSharp/
+
+*.shader_c

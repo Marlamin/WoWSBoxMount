@@ -64,7 +64,7 @@ namespace WoWSBoxMount
 
 						Log.Info( $"Texture Unit {tu}: Flags: {m2.skins[0].textureunit[tu].flags}, Shading: {m2.skins[0].textureunit[tu].shading}, Submesh Index: {m2.skins[0].textureunit[tu].submeshIndex}, Texture File Data ID: {textureFileDataID}" );
 
-						material = Material.Create( textureFileDataID.ToString(), "simple_color" );
+						material = Material.Create(BaseName + "_" + textureFileDataID, "simple_color" );
 						Sandbox.Texture texture = null;
 
 						if ( textureFileDataID == 0 )

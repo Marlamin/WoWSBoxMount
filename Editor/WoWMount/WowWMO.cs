@@ -1,7 +1,7 @@
-﻿using BLPSharp;
-using Sandbox.Mounting;
+﻿using Sandbox.Mounting;
 using System;
 using WoWFormatLib.FileReaders;
+using WoWFormatLib.Structs.WMO;
 
 namespace WoWSBoxMount
 {
@@ -9,7 +9,74 @@ namespace WoWSBoxMount
 	{
 		public uint FileDataID { get; set; }
 		public string BaseName { get; set; }
+		private enum WMOVertexShader : int
+		{
+			None = -1,
+			MapObjDiffuse_T1 = 0,
+			MapObjDiffuse_T1_Refl = 1,
+			MapObjDiffuse_T1_Env_T2 = 2,
+			MapObjSpecular_T1 = 3,
+			MapObjDiffuse_Comp = 4,
+			MapObjDiffuse_Comp_Refl = 5,
+			MapObjDiffuse_Comp_Terrain = 6,
+			MapObjDiffuse_CompAlpha = 7,
+			MapObjParallax = 8
+		}
 
+		private enum WMOPixelShader : int
+		{
+			None = -1,
+			MapObjDiffuse = 0,
+			MapObjSpecular = 1,
+			MapObjMetal = 2,
+			MapObjEnv = 3,
+			MapObjOpaque = 4,
+			MapObjEnvMetal = 5,
+			MapObjTwoLayerDiffuse = 6,
+			MapObjTwoLayerEnvMetal = 7,
+			MapObjTwoLayerTerrain = 8,
+			MapObjDiffuseEmissive = 9,
+			MapObjMaskedEnvMetal = 10,
+			MapObjEnvMetalEmissive = 11,
+			MapObjTwoLayerDiffuseOpaque = 12,
+			MapObjTwoLayerDiffuseEmissive = 13,
+			MapObjAdditiveMaskedEnvMetal = 14,
+			MapObjTwoLayerDiffuseMod2x = 15,
+			MapObjTwoLayerDiffuseMod2xNA = 16,
+			MapObjTwoLayerDiffuseAlpha = 17,
+			MapObjLod = 18,
+			MapObjParallax = 19,
+			MapObjDFShader = 20
+		}
+
+		private readonly Dictionary<MOMTShader, (WMOVertexShader VertexShader, WMOPixelShader PixelShader)> WMOShaderMap = new()
+		{
+			{ MOMTShader.Diffuse, ( WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjDiffuse ) },							// 0: 0, 0
+			{ MOMTShader.Specular, ( WMOVertexShader.MapObjSpecular_T1, WMOPixelShader.MapObjSpecular) },						// 1: 3, 1
+			{ MOMTShader.Metal, ( WMOVertexShader.MapObjSpecular_T1, WMOPixelShader.MapObjMetal) },								// 2: 3, 2
+			{ MOMTShader.Env, ( WMOVertexShader.MapObjDiffuse_T1_Refl, WMOPixelShader.MapObjEnv) },								// 3: 1, 3
+			{ MOMTShader.Opaque, (WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjOpaque) },								// 4: 0, 4
+			{ MOMTShader.EnvMetal, (WMOVertexShader.MapObjDiffuse_T1_Refl, WMOPixelShader.MapObjEnvMetal) },					// 5: 1, 5
+			{ MOMTShader.TwoLayerDiffuse, (WMOVertexShader.MapObjDiffuse_Comp, WMOPixelShader.MapObjTwoLayerDiffuse) },			// 6: 4, 6
+			{ MOMTShader.TwoLayerEnvMetal, (WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjTwoLayerEnvMetal) },			// 7: 0, 7
+			{ MOMTShader.TwoLayerTerrain, (WMOVertexShader.MapObjDiffuse_Comp_Terrain, WMOPixelShader.MapObjTwoLayerTerrain) }, // 8: 6, 8
+			{ MOMTShader.DiffuseEmissive, (WMOVertexShader.MapObjDiffuse_Comp, WMOPixelShader.MapObjDiffuseEmissive) },			// 9: 4, 9
+			{ MOMTShader.WaterWindow, (WMOVertexShader.None, WMOPixelShader.None) },											// 10: -1, -1: SMOMaterial::SH_WATERWINDOW -- automatically generates MOTA
+			{ MOMTShader.MaskedEnvMetal, (WMOVertexShader.MapObjDiffuse_T1_Env_T2, WMOPixelShader.MapObjMaskedEnvMetal) },		// 11: 2, 10
+			{ MOMTShader.EnvMetalEmissive, (WMOVertexShader.MapObjDiffuse_T1_Env_T2, WMOPixelShader.MapObjEnvMetalEmissive) },  // 12: 2, 11
+			{ MOMTShader.TwoLayerDiffuseOpaque, (WMOVertexShader.MapObjDiffuse_Comp, WMOPixelShader.MapObjTwoLayerDiffuseOpaque) }, // 13: 4, 12
+			{ MOMTShader.SubmarineWindow, (WMOVertexShader.None, WMOPixelShader.None) },										// 14: -1, -1: SMOMaterial::SH_SUBMARINEWINDOW -- automatically generates MOTA
+			{ MOMTShader.TwoLayerDiffuseEmissive, (WMOVertexShader.MapObjDiffuse_Comp, WMOPixelShader.MapObjTwoLayerDiffuseEmissive) }, // 15: 4, 13
+			{ MOMTShader.DiffuseTerrain, (WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjDiffuse) },					// 16: 0, 0: SMOMaterial::SH_DIFFUSE_TERRAIN -- "Blend Material": used for blending WMO with terrain (dynamic blend batches)
+			{ MOMTShader.AdditiveMaskedEnvMetal, (WMOVertexShader.MapObjDiffuse_T1_Env_T2, WMOPixelShader.MapObjAdditiveMaskedEnvMetal) }, // 17: 2, 14
+			{ MOMTShader.TwoLayerDiffuseMod2x, (WMOVertexShader.MapObjDiffuse_CompAlpha, WMOPixelShader.MapObjTwoLayerDiffuseMod2x) }, // 18: 7, 15
+			{ MOMTShader.TwoLayerDiffuseMod2xNA, (WMOVertexShader.MapObjDiffuse_Comp, WMOPixelShader.MapObjTwoLayerDiffuseMod2xNA) }, // 19: 4, 16
+			{ MOMTShader.TwoLayerDiffuseAlpha, (WMOVertexShader.MapObjDiffuse_CompAlpha, WMOPixelShader.MapObjTwoLayerDiffuseAlpha) }, // 20: 7, 17
+			{ MOMTShader.Lod, (WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjLod) },									// 21: 0, 18
+			{ MOMTShader.Parallax, ( WMOVertexShader.MapObjParallax, WMOPixelShader.MapObjParallax ) },							// 22: 8, 19
+			{ MOMTShader.DF_MoreTexture_Unknown, ( WMOVertexShader.MapObjDiffuse_T1, WMOPixelShader.MapObjDFShader ) },			// 23: 0, 20
+
+		};
 		protected override object Load()
 		{
 			Log.Info( "Loading WoW WMO " + BaseName + "..." );
@@ -31,7 +98,13 @@ namespace WoWSBoxMount
 					wmo.materials[i].texture3
 				};
 
-				if ( (int)wmo.materials[i].shader == 23 )
+				if ( WMOShaderMap[wmo.materials[i].shader].PixelShader == WMOPixelShader.MapObjParallax )
+				{
+					textureList.Add( wmo.materials[i].color2 );
+					textureList.Add( wmo.materials[i].flags3 );
+					textureList.Add( wmo.materials[i].runtimeData0 );
+				}
+				else if ( WMOShaderMap[wmo.materials[i].shader].PixelShader == WMOPixelShader.MapObjDFShader )
 				{
 					textureList.Add( wmo.materials[i].color3 );
 					textureList.Add( wmo.materials[i].runtimeData0 );
@@ -116,8 +189,6 @@ namespace WoWSBoxMount
 
 				for ( var i = 0; i < group.mogp.renderBatches.Length; i++ )
 				{
-					var material = Material.Create( "wmo", "simple_color" );
-
 					int matID = 0;
 
 					if ( group.mogp.renderBatches[i].flags == 2 )
@@ -127,30 +198,21 @@ namespace WoWSBoxMount
 
 					//wmoBatch.wmoRenderBatch[rb].shader = wmo.materials[matID].shader;
 
-					var textureFileDataID = materials[matID][0];
+					var material = Material.Create( "wmo_" + FileDataID + "_" + matID, "wow_worldmodel" );
+					material.Set( "WMOVertexShader", (int)WMOShaderMap[wmo.materials[matID].shader].VertexShader );
+					material.Set( "WMOPixelShader", (int)WMOShaderMap[wmo.materials[matID].shader].PixelShader ); // Do not use "PixelShader", it is reserved.
+					material.Set( "WMOBlendMode", (int)wmo.materials[matID].blendMode );
 
-					material = Material.Create( textureFileDataID.ToString(), "simple_color" );
-					Sandbox.Texture texture = null;
-
-					if ( textureFileDataID == 0 )
-					{
-						texture = Sandbox.Texture.White;
-					}
-					else
-					{
-						var blp = new BLPFile( base.Host.GetFileByID( textureFileDataID ) );
-						var pixels = blp.GetPixels( 0, out var width, out var height );
-						texture = Sandbox.Texture.Create( width, height, ImageFormat.BGRA8888 ).WithData( pixels ).Finish();
-					}
-
-					material.Set( "Color", texture );
+					for ( var j = 0; j < materials[matID].Count; j++ )
+						if ( materials[matID][j] != 0 )
+							material.Set( "Color" + j, base.Host.LoadTexture( materials[matID][j] ) );
 
 					var mesh = new Mesh( material );
 
 					mesh.CreateVertexBuffer( wmovertices.Count, WMOVertex.Layout, wmovertices );
 					mesh.CreateIndexBuffer( indiceArr.Length, indiceArr );
 					mesh.SetIndexRange( (int)group.mogp.renderBatches[i].firstFace, (int)group.mogp.renderBatches[i].numFaces );
-					mesh.Bounds = BBox.FromPoints( wmovertices.Select( ( WMOVertex x ) => x.position ), 0f );
+					mesh.Bounds = BBox.FromPoints( wmovertices.Select( x => x.position ), 0f );
 
 					//wmoBatch.wmoRenderBatch[rb].blendType = wmo.materials[matID].blendMode;
 					//wmoBatch.wmoRenderBatch[rb].groupID = (uint)g;
@@ -159,54 +221,10 @@ namespace WoWSBoxMount
 				}
 			}
 
-			//var meshList = new List<Mesh>();
-			//for (var submeshIndex = 0; submeshIndex < m2.skins[0].submeshes.Length; submeshIndex++)
-			//{
-			//    var submesh = m2.skins[0].submeshes[submeshIndex];
-			//    Log.Info($"Submesh ID: {submesh.submeshID}, Vertices: {submesh.nVertices}, Triangles: {submesh.nTriangles}");
-
-			//    Material material = null;
-
-			//    for (var tu = 0; tu < m2.skins[0].textureunit.Length; tu++)
-			//    {
-			//        if (m2.skins[0].textureunit[tu].submeshIndex == submeshIndex)
-			//        {
-			//            var textureFileDataID = m2.textureFileDataIDs[m2.texlookup[m2.skins[0].textureunit[tu].texture].textureID];
-
-			//            Log.Info($"Texture Unit {tu}: Flags: {m2.skins[0].textureunit[tu].flags}, Shading: {m2.skins[0].textureunit[tu].shading}, Submesh Index: {m2.skins[0].textureunit[tu].submeshIndex}, Texture File Data ID: {textureFileDataID}");
-
-			//            material = Material.Create(textureFileDataID.ToString(), "simple_color");
-			//            Sandbox.Texture texture = null;
-
-			//            if (textureFileDataID == 0)
-			//            {
-			//                texture = Sandbox.Texture.White;
-			//            }
-			//            else
-			//            {
-			//                var blp = new BLPFile(File.OpenRead(System.IO.Path.Combine(base.Host.BaseDirectory, "files", textureFileDataID.ToString() + ".blp")));
-			//                var pixels = blp.GetPixels(0, out var width, out var height);
-			//                texture = Sandbox.Texture.Create(width, height, ImageFormat.BGRA8888).WithData(pixels).Finish();
-			//            }
-
-			//            material.Set("Color", texture);
-			//        }
-			//    }
-
-			//    var mesh = new Mesh(material);
-
-			//    mesh.CreateVertexBuffer(verticeList.Count, SimpleVertex.Layout, verticeList);
-
-			//    var indiceArr = indiceList.ToArray();
-			//    mesh.CreateIndexBuffer(indiceArr.Length, indiceArr);
-			//    mesh.SetIndexRange((int)submesh.startTriangle * 3, (int)submesh.nTriangles * 3);
-			//    mesh.Bounds = BBox.FromPoints(verticeList.Select((SimpleVertex x) => x.position), 0f);
-			//    meshList.Add(mesh);
-			//}
-
-			//model = ;
-			//Log.Info("WoW model loaded successfully.");
-			return Model.Builder.WithName( BaseName ).AddMeshes( [.. meshList] ).Create();
+			var modelBuilder = Model.Builder.WithName( BaseName );
+			modelBuilder.AddMeshes( [.. meshList] );
+			var model = modelBuilder.Create();
+			return model;
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Sandbox.Mounting;
+﻿using BLPSharp;
+using Sandbox.Mounting;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace WoWSBoxMount
 		private BuildInstance buildInstance;
 
 		private bool IsInitialized => false;
+
+		private Dictionary<uint, Sandbox.Texture> textureCache = new();
 
 		protected override void Initialize( InitializeContext context )
 		{
@@ -150,6 +153,27 @@ namespace WoWSBoxMount
 		public bool FileExists( uint fileDataID )
 		{
 			return buildInstance.Root!.FileExists( fileDataID );
+		}
+
+		public Sandbox.Texture LoadTexture( uint fileDataID )
+		{
+			if(fileDataID == 0 )
+				return Sandbox.Texture.White;
+
+			if ( !FileExists( fileDataID ) )
+			{
+				base.Log.Warning( $"Texture file with ID {fileDataID} does not exist." );
+				return Sandbox.Texture.White;
+			}
+
+			if ( textureCache.TryGetValue( fileDataID, out var cachedTexture ) )
+				return cachedTexture;
+
+			var blp = new BLPFile( GetFileByID( fileDataID ) );
+			var pixels = blp.GetPixels( 0, out var width, out var height );
+			var texture = Sandbox.Texture.Create( width, height, ImageFormat.BGRA8888 ).WithData( pixels ).Finish();
+			textureCache[fileDataID] = texture;
+			return texture;
 		}
 	}
 }
