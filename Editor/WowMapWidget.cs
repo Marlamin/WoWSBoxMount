@@ -1,9 +1,11 @@
+using Editor.Inspectors;
 using Sandbox;
 using Sandbox.Internal;
 using System.IO;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.ADT;
 using WoWFormatLib.Structs.M2;
+using WoWFormatLib.Structs.WMO;
 using WoWSBoxMount;
 
 [Dock( "Editor", "WoW Mount Dock", "local_fire_department" )]
@@ -21,7 +23,7 @@ public class WowMapWidget : Widget
 	}
 
 	private WowMount wowMount;
-
+	private float SBoxScale = 40f;
 	public WowMapWidget( Widget parent ) : base( parent, false )
 	{
 		wowMount = (WowMount)Sandbox.Mounting.Directory.Get( "wow" );
@@ -53,7 +55,7 @@ public class WowMapWidget : Widget
 		Layout.Add( itemWidget );
 	}
 
-	public void SpawnModel(string modelName, Vector3 position, Angles rotation, GameObject parent )
+	public void SpawnModel(string modelName, Vector3 position, Angles rotation, Vector3 scale, GameObject parent )
 	{
 		var model = Model.Load(modelName);
 
@@ -69,6 +71,7 @@ public class WowMapWidget : Widget
 
 		go.LocalPosition = position;
 		go.LocalRotation = rotation.ToRotation();
+		go.LocalScale = scale;
 
 		go.Parent = parent;
 		go.Enabled = true;
@@ -91,7 +94,7 @@ public class WowMapWidget : Widget
 
 	public void LoadMap(uint fileDataID )
 	{
-		var loadModels = false;
+		var loadModels = true;
 
 		if (!wowMount.FileExistsByID(fileDataID))
 		{
@@ -133,8 +136,9 @@ public class WowMapWidget : Widget
 			{
 				SpawnModel(
 					wowMount.GetMountNameByID(wmo.mwidEntry),
-					new Vector3(wmo.position.x, wmo.position.y, wmo.position.z),
+					new Vector3(wmo.position.x * -1, wmo.position.z * -1, wmo.position.y) * SBoxScale,
 					new Angles(wmo.rotation.x, wmo.rotation.y, wmo.rotation.z),
+					new Vector3(wmo.scale / 1024f, wmo.scale / 1024f, wmo.scale / 1024f),
 					adtGO
 				);
 			}
@@ -143,8 +147,9 @@ public class WowMapWidget : Widget
 			{
 				SpawnModel(
 					wowMount.GetMountNameByID(m2.mmidEntry),
-					new Vector3(m2.position.x , m2.position.y, m2.position.z),
+					new Vector3(m2.position.x * -1, m2.position.z * -1, m2.position.y) * SBoxScale,
 					new Angles(m2.rotation.x, m2.rotation.y, m2.rotation.z),
+					new Vector3(m2.scale / 1024f, m2.scale / 1024f, m2.scale / 1024f ),
 					adtGO
 				);
 			}
@@ -200,7 +205,7 @@ public class WowMapWidget : Widget
 					if ( (i % 2) != 0 )
 						v.position.y -= 0.5f * UnitSize;
 
-					v.position *= 40f;
+					v.position *= SBoxScale;
 
 					verticelist.Add( v );
 				}
