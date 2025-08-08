@@ -14,11 +14,11 @@ namespace WoWSBoxMount
 		public override string Title => "World of Warcraft";
 
 		public string InstallDirectory;
-		public string Product => "wowxptr";
+		public string Product => "wow";
 
 		private BuildInstance buildInstance;
 
-		private Dictionary<uint, Sandbox.Texture> textureCache = new();
+		private Dictionary<uint, Texture> textureCache = new();
 
 		private Listfile listfile;
 

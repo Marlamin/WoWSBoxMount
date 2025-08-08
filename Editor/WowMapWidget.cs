@@ -70,7 +70,7 @@ public class WowMapWidget : Widget
 		modelRenderer.Model = model;
 
 		go.LocalPosition = position;
-		go.LocalRotation = rotation.ToRotation();
+		go.LocalRotation = rotation;
 		go.LocalScale = scale;
 
 		go.Parent = parent;
@@ -136,8 +136,8 @@ public class WowMapWidget : Widget
 			{
 				SpawnModel(
 					wowMount.GetMountNameByID(wmo.mwidEntry),
-					new Vector3(wmo.position.x * -1, wmo.position.z * -1, wmo.position.y) * SBoxScale,
-					new Angles(wmo.rotation.x, wmo.rotation.y, wmo.rotation.z),
+					(new Vector3((wmo.position.z - 17066 ) * -1, (wmo.position.x - 17066) * -1, wmo.position.y) * SBoxScale),
+					new Angles(wmo.rotation.x, wmo.rotation.y - 180f, wmo.rotation.z),
 					new Vector3(wmo.scale / 1024f, wmo.scale / 1024f, wmo.scale / 1024f),
 					adtGO
 				);
@@ -147,8 +147,8 @@ public class WowMapWidget : Widget
 			{
 				SpawnModel(
 					wowMount.GetMountNameByID(m2.mmidEntry),
-					new Vector3(m2.position.x * -1, m2.position.z * -1, m2.position.y) * SBoxScale,
-					new Angles(m2.rotation.x, m2.rotation.y, m2.rotation.z),
+					(new Vector3((m2.position.z - 17066) * -1, ( m2.position.x - 17066) * -1, m2.position.y) * SBoxScale),
+					new Angles(m2.rotation.x, m2.rotation.y - 180f, m2.rotation.z),
 					new Vector3(m2.scale / 1024f, m2.scale / 1024f, m2.scale / 1024f ),
 					adtGO
 				);
