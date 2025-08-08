@@ -119,6 +119,7 @@ namespace WoWSBoxMount
 				}
 			}*/
 
+			
 			var modelBuilder = Model.Builder.WithName( BaseName );
 			modelBuilder.AddMeshes( [.. meshList] );
 			modelBuilder.AddBones( [.. boneList] );

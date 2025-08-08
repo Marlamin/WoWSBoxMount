@@ -18,9 +18,9 @@ namespace WoWSBoxMount
 
 		private BuildInstance buildInstance;
 
-		private bool IsInitialized => false;
-
 		private Dictionary<uint, Sandbox.Texture> textureCache = new();
+
+		private Listfile listfile;
 
 		protected override void Initialize( InitializeContext context )
 		{
@@ -86,19 +86,19 @@ namespace WoWSBoxMount
 
 			base.Log.Info( "Adding listfile models..." );
 
-			var lf = new Listfile();
-			lf.Initialize( buildInstance.cdn, buildInstance.Settings );
-			lf.GetFilename( 1 ); // trigger name load
+			listfile = new Listfile();
+			listfile.Initialize( buildInstance.cdn, buildInstance.Settings );
+			listfile.GetFilename( 1 ); // trigger name load
 
 			var limit = 5;
 			var count = 0;
 
 			var regex = "_\\d{1,3}(_lod\\d+)?\\.wmo";
 
-			var reverseListfile = lf.fdidToName.Reverse().ToDictionary( x => x.Key, x => x.Value );
+			var reverseListfile = listfile.fdidToName.Reverse().ToDictionary( x => x.Key, x => x.Value );
 			foreach ( var file in reverseListfile )
 			{
-				if ( !FileExists( file.Key ) )
+				if ( !FileExistsByID( file.Key ) )
 					continue;
 
 				var filename = file.Value.ToLowerInvariant();
@@ -150,7 +150,7 @@ namespace WoWSBoxMount
 			return new MemoryStream( buildInstance.OpenFileByFDID( fileDataID ) );
 		}
 
-		public bool FileExists( uint fileDataID )
+		public bool FileExistsByID( uint fileDataID )
 		{
 			return buildInstance.Root!.FileExists( fileDataID );
 		}
@@ -160,7 +160,7 @@ namespace WoWSBoxMount
 			if(fileDataID == 0 )
 				return Sandbox.Texture.White;
 
-			if ( !FileExists( fileDataID ) )
+			if ( !FileExistsByID( fileDataID ) )
 			{
 				base.Log.Warning( $"Texture file with ID {fileDataID} does not exist." );
 				return Sandbox.Texture.White;
@@ -174,6 +174,27 @@ namespace WoWSBoxMount
 			var texture = Sandbox.Texture.Create( width, height, ImageFormat.BGRA8888 ).WithData( pixels ).Finish();
 			textureCache[fileDataID] = texture;
 			return texture;
+		}
+
+		public string? GetMountNameByID(uint fileDataID)
+		{
+			if ( !FileExistsByID( fileDataID ) )
+			{
+				Log.Warning( $"Model file with ID {fileDataID} does not exist." );
+				return null;
+			}
+		
+			if( listfile.fdidToName.TryGetValue( fileDataID, out var name ) )
+			{
+				var ext = (name.EndsWith(".wmo") || name.EndsWith(".m2")) ? ".vmdl" : throw new Exception("Requested mounted name for non-WMO/M2!");
+
+				return "mount://wow/" + name.ToLowerInvariant() + ext;
+			}
+			else
+			{
+				Log.Warning( $"Model file with ID {fileDataID} not found in listfile." );
+				return null;
+			}
 		}
 	}
 }

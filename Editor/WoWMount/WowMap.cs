@@ -26,7 +26,7 @@ namespace WoWSBoxMount
 			Sandbox.Texture texture = Sandbox.Texture.White;
 			material.Set( "Color", texture );
 
-			var adtReader = new ADTReader( base.Host );
+			var adtReader = new ADTReader(  base.Host, wdtReader.wdtfile );
 
 			foreach ( var tile in wdtReader.wdtfile.tileFiles )
 			{
@@ -47,7 +47,7 @@ namespace WoWSBoxMount
 
 				var maptextureFileDataID = tile.Value.mapTexture;
 
-				adtReader.LoadADT( wdtReader.wdtfile.mphd.flags, tile.Value.rootADT, tile.Value.obj0ADT, tile.Value.tex0ADT );
+				adtReader.LoadADT( tile.Value.rootADT, tile.Value.obj0ADT, tile.Value.tex0ADT );
 				var adt = adtReader.adtfile;
 
 				for ( uint c = 0; c < 256; c++ )
