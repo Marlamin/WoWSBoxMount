@@ -9,6 +9,7 @@
 	[VertexLayout.TexCoord(0)]
 	public Vector2 texcoord0;
 
+	// TODO: Figure out where these actually end up in the shader...
 	[VertexLayout.TexCoord(1)]
 	public Vector2 texcoord1;
 
