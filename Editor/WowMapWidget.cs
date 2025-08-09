@@ -265,8 +265,8 @@ public class WowMapWidget : Widget
 					var v = new ADTVertex
 					{
 						color = (chunk.vertexShading.red != null
-							? new Vector4( chunk.vertexShading.blue[idx] / 255.0f, chunk.vertexShading.green[idx] / 255.0f, chunk.vertexShading.red[idx] / 255.0f, chunk.vertexShading.alpha[idx] / 255.0f )
-							: new Vector4( 0.5f, 0.5f, 0.5f, 1.0f )
+							? new Vector3( chunk.vertexShading.blue[idx] / 255.0f, chunk.vertexShading.green[idx] / 255.0f, chunk.vertexShading.red[idx] / 255.0f)
+							: new Vector3( 0.5f, 0.5f, 0.5f )
 						),
 						normal = new Vector3( chunk.normals.normal_0[idx], chunk.normals.normal_1[idx], chunk.normals.normal_2[idx] ),
 						texcoord = (useBakedTextures ? new Vector2( -(vx - firstChunkX) / TileSize, -(vz - firstChunkY) / TileSize ) : new Vector2( (j + (((i % 2) != 0) ? 0.5f : 0f)) / 8f, (i * 0.5f) / 8f )),

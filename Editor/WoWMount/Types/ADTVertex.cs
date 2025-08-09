@@ -10,14 +10,14 @@
 	public Vector2 texcoord;
 
 	[VertexLayout.Color]
-	public Vector4 color;
+	public Vector3 color;
 
 	public static readonly VertexAttribute[] Layout =
 	[
 		new VertexAttribute(VertexAttributeType.Position, VertexAttributeFormat.Float32),
 		new VertexAttribute(VertexAttributeType.Normal, VertexAttributeFormat.Float32),
 		new VertexAttribute(VertexAttributeType.TexCoord, VertexAttributeFormat.Float32, 2),
-		new VertexAttribute(VertexAttributeType.Color, VertexAttributeFormat.Float32, 4)
+		new VertexAttribute(VertexAttributeType.Color, VertexAttributeFormat.Float32)
 	];
 
 	public ADTVertex( Vector3 position, Vector3 normal, Vector2 texcoord, Vector4 color )

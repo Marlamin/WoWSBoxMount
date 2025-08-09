@@ -25,13 +25,13 @@ COMMON
 struct VertexInput
 {
 	#include "common/vertexinput.hlsl"
-	float4 vColor : COLOR0 < Semantic( Color ); >;
+	float3 vColor : COLOR0 < Semantic( Color ); >;
 };
 
 struct PixelInput
 {
 	#include "common/pixelinput.hlsl"
-	float4 vColor : COLOR0;
+	float3 vColor : COLOR0;
 };
 
 VS
