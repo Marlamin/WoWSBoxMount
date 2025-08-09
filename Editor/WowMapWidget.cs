@@ -43,6 +43,7 @@ public class WowMapWidget : Widget
 		itemWidget.AddItem( new MapData() { FileDataID = 782779, Name = "Kalimdor" } );
 		itemWidget.AddItem( new MapData() { FileDataID = 1522385, Name = "Winter AB" } );
 		itemWidget.AddItem( new MapData() { FileDataID = 5105580, Name = "Dragon Isles" } );
+		itemWidget.AddItem( new MapData() { FileDataID = 5665807, Name = "K'aresh" } );
 
 		itemWidget.ItemSelected += ( item ) =>
 		{
@@ -93,7 +94,7 @@ public class WowMapWidget : Widget
 
 	public void LoadMap( uint fileDataID )
 	{
-		var loadModels = false;
+		var loadModels = true;
 
 		if ( !wowMount.FileExistsByID( fileDataID ) )
 		{
@@ -120,7 +121,10 @@ public class WowMapWidget : Widget
 			if ( tile.Value.rootADT == 0 )
 				continue;
 
-			if ( tile.Key.Item1 > 32 )
+			if ( tile.Key.Item1 < 32 || tile.Key.Item1 > 34 )
+				continue;
+
+			if ( tile.Key.Item2 < 30 || tile.Key.Item2 > 32 )
 				continue;
 
 			Log.Info( $"Processing tile at ({tile.Key.Item1}, {tile.Key.Item2}) with root ADT ID {tile.Value.rootADT}" );
