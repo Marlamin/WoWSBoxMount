@@ -25,11 +25,13 @@ COMMON
 struct VertexInput
 {
 	#include "common/vertexinput.hlsl"
+	float4 vColor : COLOR0 < Semantic( Color ); >;
 };
 
 struct PixelInput
 {
 	#include "common/pixelinput.hlsl"
+	float4 vColor : COLOR0;
 };
 
 VS
@@ -39,6 +41,7 @@ VS
 	PixelInput MainVs( VertexInput v )
 	{
 		PixelInput i = ProcessVertex( v );
+		i.vColor = v.vColor;
 		return FinalizeVertex( i );
 	}
 }
@@ -114,7 +117,6 @@ PS
 		float2 tc2 = i.vTextureCoords * (8.0 / layerScale2);
 		float2 tc3 = i.vTextureCoords * (8.0 / layerScale3);
 
-
 		float2 uvWrapped = i.vTextureCoords - floor(i.vTextureCoords);
 		float2 uvClamped = saturate(uvWrapped * 0.998 + 0.001);
 
@@ -147,7 +149,7 @@ PS
 		float4 weightedLayer_3 = g_tLayer3.Sample(g_sSampler0, tc3) * layerPct.w;
 
 		// TODO: Replace float3(1.0, 1.0, 1.0) with MCCV
-		m.Albedo = (weightedLayer_0.rgb + weightedLayer_1.rgb + weightedLayer_2.rgb + weightedLayer_3.rgb) * float3(1.0, 1.0, 1.0) * 2.0;
+		m.Albedo = (weightedLayer_0.rgb + weightedLayer_1.rgb + weightedLayer_2.rgb + weightedLayer_3.rgb) * i.vColor.rgb * 2.0;
 		m.Normal = i.vNormalWs;
 		m.TextureCoords = i.vTextureCoords.xy;
 		m.Roughness = 1;

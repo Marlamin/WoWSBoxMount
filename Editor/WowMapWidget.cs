@@ -203,7 +203,7 @@ public class WowMapWidget : Widget
 				}
 			}
 
-			var verticelist = new List<SimpleVertex>();
+			var verticelist = new List<ADTVertex>();
 			var indicelist = new List<int>();
 
 			var chunk = adt.chunks[c];
@@ -262,14 +262,12 @@ public class WowMapWidget : Widget
 					var vx = chunk.header.position.y - (j * UnitSize);
 					var vz = chunk.header.position.x - (i * (UnitSize / 2));
 
-					var v = new SimpleVertex
+					var v = new ADTVertex
 					{
-						// TODO: MCCV
-						//if (chunk.vertexShading.red != null)
-						//    v.Color = new Vector4(chunk.vertexShading.blue[idx] / 255.0f, chunk.vertexShading.green[idx] / 255.0f, chunk.vertexShading.red[idx] / 255.0f, chunk.vertexShading.alpha[idx] / 255.0f);
-						//else
-						//    v.Color = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
-
+						color = (chunk.vertexShading.red != null
+							? new Vector4( chunk.vertexShading.blue[idx] / 255.0f, chunk.vertexShading.green[idx] / 255.0f, chunk.vertexShading.red[idx] / 255.0f, chunk.vertexShading.alpha[idx] / 255.0f )
+							: new Vector4( 0.5f, 0.5f, 0.5f, 1.0f )
+						),
 						normal = new Vector3( chunk.normals.normal_0[idx], chunk.normals.normal_1[idx], chunk.normals.normal_2[idx] ),
 						texcoord = (useBakedTextures ? new Vector2( -(vx - firstChunkX) / TileSize, -(vz - firstChunkY) / TileSize ) : new Vector2( (j + (((i % 2) != 0) ? 0.5f : 0f)) / 8f, (i * 0.5f) / 8f )),
 						position = new Vector3( chunk.header.position.x - (i * 2.08333125f), chunk.header.position.y - (j * 4.1666625f), chunk.vertices.vertices[idx++] + chunk.header.position.z ),
@@ -295,11 +293,11 @@ public class WowMapWidget : Widget
 
 			var mesh = new Mesh( material );
 
-			mesh.CreateVertexBuffer( verticelist.Count, SimpleVertex.Layout, verticelist );
+			mesh.CreateVertexBuffer( verticelist.Count, ADTVertex.Layout, verticelist );
 
 			var indiceArr = indicelist.ToArray();
 			mesh.CreateIndexBuffer( indiceArr.Length, indiceArr );
-			mesh.Bounds = BBox.FromPoints( verticelist.Select( ( SimpleVertex x ) => x.position ), 0f );
+			mesh.Bounds = BBox.FromPoints( verticelist.Select( ( ADTVertex x ) => x.position ), 0f );
 			meshList.Add( mesh );
 		}
 
