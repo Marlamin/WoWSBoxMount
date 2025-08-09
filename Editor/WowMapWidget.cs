@@ -272,11 +272,11 @@ public class WowMapWidget : Widget
 
 						normal = new Vector3( chunk.normals.normal_0[idx], chunk.normals.normal_1[idx], chunk.normals.normal_2[idx] ),
 						texcoord = (useBakedTextures ? new Vector2( -(vx - firstChunkX) / TileSize, -(vz - firstChunkY) / TileSize ) : new Vector2( (j + (((i % 2) != 0) ? 0.5f : 0f)) / 8f, (i * 0.5f) / 8f )),
-						position = new Vector3( chunk.header.position.x - (i * UnitSize * 0.5f), chunk.header.position.y - (j * UnitSize), chunk.vertices.vertices[idx++] + chunk.header.position.z ),
+						position = new Vector3( chunk.header.position.x - (i * 2.08333125f), chunk.header.position.y - (j * 4.1666625f), chunk.vertices.vertices[idx++] + chunk.header.position.z ),
 					};
 
 					if ( (i % 2) != 0 )
-						v.position.y -= 0.5f * UnitSize;
+						v.position.y -= 2.08333125f;
 
 					v.position *= SBoxScale;
 
