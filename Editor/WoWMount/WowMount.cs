@@ -81,7 +81,7 @@ namespace WoWSBoxMount
 			}
 
 			buildInstance.cdn.ProductDirectory = "tpr/wow";
-			buildInstance.Settings.AdditionalCDNs = new List<string>() { "cdn.wago.tools", "cdn.arctium.tools" };
+			buildInstance.Settings.AdditionalCDNs = new List<string>() { "casc.wago.tools", "cdn.arctium.tools" };
 
 			buildInstance.cdn.OpenLocal();
 
