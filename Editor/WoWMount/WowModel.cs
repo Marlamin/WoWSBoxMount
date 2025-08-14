@@ -93,6 +93,14 @@ namespace WoWSBoxMount
 				meshList.Add( mesh );
 			}
 
+			var collisionVertices = m2.boundingvertices.Select(x => x.vertex * 40f).ToList();
+			var collisionIndices = new List<int>();
+			foreach(var colIndice in m2.boundingtriangles ) { 
+				collisionIndices.Add( colIndice.index_0 );
+				collisionIndices.Add( colIndice.index_1 );
+				collisionIndices.Add( colIndice.index_2 );
+			}
+
 			var boneList = new List<Sandbox.ModelBuilder.Bone>();
 			// This makes models disappear, figure out how to properly handle bones.
 			/*for(var boneIndex = 0; boneIndex < m2.bones.Length; boneIndex++)
@@ -123,6 +131,7 @@ namespace WoWSBoxMount
 			var modelBuilder = Model.Builder.WithName( BaseName );
 			modelBuilder.AddMeshes( [.. meshList] );
 			modelBuilder.AddBones( [.. boneList] );
+			modelBuilder.AddCollisionMesh(collisionVertices, collisionIndices);
 			var model = modelBuilder.Create();
 			Log.Info( "WoW model loaded successfully." );
 			return model;
