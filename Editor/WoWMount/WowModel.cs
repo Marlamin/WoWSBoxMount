@@ -32,7 +32,7 @@ namespace WoWSBoxMount
 				var blendWeights = new Color32( vertice.boneWeight_0, vertice.boneWeight_1, vertice.boneWeight_2, vertice.boneWeight_3 );
 
 				verticeList.Add( new M2Vertex(
-					position * 30f,
+					position * 40f,
 					normal,
 					texCoord,
 					blendIndices,
